@@ -15,3 +15,87 @@
 # @package     Lof_SellerProductGraphQl
 # @copyright   Copyright (c) 2022 Landofcoder (https://landofcoder.com/)
 # @license     https://landofcoder.com/LICENSE.txt
+
+enum UrlRewriteEntityTypeEnum {
+    LOF_MARKETPLACE
+}
+
+type StoreConfig {
+    lofmarketplace_product_view_seller_info  : String  @doc(description: "Query by lofmarketplace_product_view_seller_info.")
+    lofmarketplace_product_view_seller_name  : String  @doc(description: "Query by lofmarketplace_product_view_seller_name.")
+    lofmarketplace_product_view_seller_image  : String  @doc(description: "Query by lofmarketplace_product_view_seller_image.")
+    lofmarketplace_product_view_seller_address  : String  @doc(description: "Query by lofmarketplace_product_view_seller_address.")
+    lofmarketplace_product_view_seller_sale  : String  @doc(description: "Query by lofmarketplace_product_view_seller_sale.")
+    lofmarketplace_product_view_seller_phone  : String  @doc(description: "Query by lofmarketplace_product_view_seller_phone.")
+    lofmarketplace_product_view_seller_contact  : String  @doc(description: "Query by lofmarketplace_product_view_seller_contact.")
+    lofmarketplace_product_view_seller_contact_text  : String  @doc(description: "Query by lofmarketplace_product_view_seller_contact_text.")
+}
+
+type Query {
+    
+    lofProductBySellerId(
+        seller_id: Int! @doc(description: "Seller id")
+        search: String = "" @doc(description: "Performs a full-text search using the specified key words."),
+        filter: ProductAttributeFilterInput @doc(description: "Identifies which product attributes to search for and return."),
+        pageSize: Int = 20 @doc(description: "Specifies the maximum number of results to return at once. This attribute is optional."),
+        currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1."),
+        sort: ProductAttributeSortInput @doc(description: "Specifies which attributes to sort on, and whether to return the results in ascending or descending order.")
+    ): Products @resolver(class: "\\Lof\\SellerProductGraphQl\\Model\\Resolver\\ProductBySellerId") @doc(description: "Get Product by Seller ID")
+
+    lofProductList(
+        search: String = "" @doc(description: "Performs a full-text search using the specified key words."),
+        filter: ProductAttributeFilterInput @doc(description: "Identifies which product attributes to search for and return."),
+        pageSize: Int = 20 @doc(description: "Specifies the maximum number of results to return at once. This attribute is optional."),
+        currentPage: Int = 1 @doc(description: "Specifies which page of results to return. The default value is 1."),
+        sort: ProductAttributeSortInput @doc(description: "Specifies which attributes to sort on, and whether to return the results in ascending or descending order.")
+       ):Products @resolver(class: "\\Lof\\SellerProductGraphQl\\Model\\Resolver\\ProductSellers") @doc(description: "The seller product query searches for seller products that match the criteria specified in the search and filter attributes")
+}
+
+
+type Seller {
+    seller_id: Int @doc(description: "Seller ID")   
+    products: Products @doc(description: "Products")
+}
+
+
+type Products {
+    total_count: Int @doc(description: "The number of seller products returned")
+    items: [ProductInterface] @doc(description: "An array of seller products that match the specified search criteria")
+}
+
+
+input SellerFilterInput {
+    seller_id: FilterTypeInput @doc(description: "Seller ID")
+    name: FilterTypeInput @doc(description: "Name")
+    status: FilterTypeInput @doc(description: "Status")
+    email: FilterTypeInput @doc(description: "Email")
+    group_id: FilterTypeInput @doc(description: "group_id")
+    page_title: FilterTypeInput @doc(description: "page_title")
+    meta_keywords: FilterTypeInput @doc(description: "meta_keywords")
+    created_at: FilterMatchTypeInput @doc(description: "created_at")
+    address: FilterMatchTypeInput @doc(description: "address")
+    country: FilterTypeInput @doc(description: "country")
+    city: FilterTypeInput @doc(description: "city")
+    region: FilterTypeInput @doc(description: "region")
+    or: SellerFilterInput @doc(description: "The keyword required to perform a logical OR comparison")
+}
+
+input SellerProductFilterInput {
+    name: FilterTypeInput @doc(description: "Name")
+    type_id: FilterTypeInput @doc(description: "Type")
+    price: FilterTypeInput @doc(description: "Price")
+    created_at: FilterTypeInput @doc(description: "Created At")
+    approval: FilterTypeInput @doc(description: "Approval")
+    sku: FilterTypeInput @doc(description: "SKU")
+    or: SellerFilterInput @doc(description: "The keyword required to perform a logical OR comparison")
+}
+
+type Res {
+    code: String
+    message: String
+}
+
+interface ProductInterface {
+    seller: Seller @doc(description: "Seller who sell this product") 
+    @resolver(class: "\\Lof\\SellerProductGraphQl\\Model\\Resolver\\ProductAttributeSetSellerResolver")
+}
